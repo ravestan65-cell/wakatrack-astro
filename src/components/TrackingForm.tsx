@@ -15,28 +15,20 @@ export default function TrackingForm() {
         throw new Error('Please enter a tracking number');
       }
 
-      console.log('[Client] Submitting tracking number:', trackingNumber);
+      // Direct navigation to tracking page (works in iframes)
+      // The tracking page will validate if the number exists
+      const trackingUrl = `/tracking/${encodeURIComponent(trackingNumber.trim())}`;
 
-      const response = await fetch('/api/track', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ trackingNumber: trackingNumber.trim() }),
-      });
+      // Check if we're in an iframe
+      const isInIframe = window.self !== window.top;
 
-      const data = await response.json();
-      console.log('[Client] API Response:', data);
-
-      if (!response.ok) {
-        throw new Error(data.message || 'Error tracking shipment');
+      if (isInIframe) {
+        // Open in new tab/window when in iframe (avoids cookie/navigation issues)
+        window.open(trackingUrl, '_blank');
+      } else {
+        // Normal navigation when not in iframe
+        window.location.href = trackingUrl;
       }
-
-      if (!data.success || !data.trackingNumber) {
-        throw new Error('Shipment not found');
-      }
-
-      // Redirect to tracking page using tracking number (cleaner URL)
-      console.log('[Client] Redirecting to:', `/tracking/${data.trackingNumber}`);
-      window.location.href = `/tracking/${data.trackingNumber}`;
 
     } catch (err: any) {
       console.error('[Client] Error:', err);
