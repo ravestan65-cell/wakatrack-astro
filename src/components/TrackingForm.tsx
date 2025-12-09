@@ -16,19 +16,11 @@ export default function TrackingForm() {
       }
 
       // Direct navigation to tracking page (works in iframes)
-      // The tracking page will validate if the number exists
+      // No API call needed - tracking page fetches data directly
       const trackingUrl = `/tracking/${encodeURIComponent(trackingNumber.trim())}`;
 
-      // Check if we're in an iframe
-      const isInIframe = window.self !== window.top;
-
-      if (isInIframe) {
-        // Open in new tab/window when in iframe (avoids cookie/navigation issues)
-        window.open(trackingUrl, '_blank');
-      } else {
-        // Normal navigation when not in iframe
-        window.location.href = trackingUrl;
-      }
+      // Navigate within the current frame (works in iframes too)
+      window.location.href = trackingUrl;
 
     } catch (err: any) {
       console.error('[Client] Error:', err);
