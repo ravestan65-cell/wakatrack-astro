@@ -1,0 +1,44 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import TrackingPageClient from '../../components/TrackingPageClient';
+
+const { id } = Astro.params;
+
+// Check for tracking access token
+const trackingAccessCookie = Astro.cookies.get('tracking_access');
+
+if (!trackingAccessCookie) {
+  // No token - redirect to home
+  return Astro.redirect('/');
+}
+
+try {
+  const tokenData = JSON.parse(atob(trackingAccessCookie.value));
+
+  // Check if token is expired
+  if (tokenData.exp < Date.now()) {
+    // Token expired - clear cookie and redirect
+    Astro.cookies.delete('tracking_access', { path: '/' });
+    return Astro.redirect('/');
+  }
+
+  // Check if token matches the requested tracking number
+  if (tokenData.trackingNumber !== id) {
+    // Token doesn't match - redirect to home
+    return Astro.redirect('/');
+  }
+} catch (e) {
+  // Invalid token - redirect to home
+  return Astro.redirect('/');
+}
+---
+
+<Layout title="Tracking Details - WakaTrack">
+  <TrackingPageClient shipmentId={id!} client:load />
+</Layout>
+
+<style>
+  /* Leaflet CSS needs to be loaded for the map */
+</style>
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />

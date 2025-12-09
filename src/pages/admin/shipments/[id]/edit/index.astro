@@ -1,0 +1,10 @@
+---
+import Layout from '../../../../../layouts/Layout.astro';
+import ShipmentForm from '../../../../../components/ShipmentForm';
+
+const { id } = Astro.params;
+---
+
+<Layout title="Edit Shipment - WakaTrack">
+  <ShipmentForm shipmentId={id} isEditMode={true} isUserMode={false} client:load />
+</Layout>
