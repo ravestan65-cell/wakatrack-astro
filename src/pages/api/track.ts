@@ -33,11 +33,12 @@ export const POST: APIRoute = async ({ request, cookies }) => {
     console.log('[API] Found shipment:', shipment.id);
 
     // Create a tracking access token (valid for 30 minutes)
-    const trackingToken = Buffer.from(JSON.stringify({
+    // Use btoa for Cloudflare Workers compatibility (no Buffer in edge runtime)
+    const trackingToken = btoa(JSON.stringify({
       trackingNumber: shipment.tracking_number,
       timestamp: Date.now(),
       exp: Date.now() + (30 * 60 * 1000) // 30 minutes
-    })).toString('base64');
+    }));
 
     // Set cookie for tracking access
     cookies.set('tracking_access', trackingToken, {
