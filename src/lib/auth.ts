@@ -87,12 +87,14 @@ export function createSessionToken(userId: string, email: string, isAdmin: boole
     isAdmin,
     exp: Date.now() + (7 * 24 * 60 * 60 * 1000) // 7 days
   };
-  return Buffer.from(JSON.stringify(payload)).toString('base64');
+  // Use btoa for Cloudflare Workers compatibility (no Buffer in edge runtime)
+  return btoa(JSON.stringify(payload));
 }
 
 export function validateSessionToken(token: string): { userId: string; email: string; isAdmin: boolean } | null {
   try {
-    const payload = JSON.parse(Buffer.from(token, 'base64').toString());
+    // Use atob for Cloudflare Workers compatibility (no Buffer in edge runtime)
+    const payload = JSON.parse(atob(token));
     if (payload.exp < Date.now()) {
       return null; // Token expired
     }
